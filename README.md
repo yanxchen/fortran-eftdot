@@ -11,7 +11,7 @@ A Fortran implementation of Error-Free Transformation (EFT) based dot products f
 
 - `src/eftdot.f90`: Main EFT dot product module
 - `tests/test.f90`: Test program for accuracy benchmarking
-- `tests/gen_dot_data.py`: Generates ill-conditioned test vectors using `accupy`
+- `tests/gen_dot_data.py`: Generates ill-conditioned test vectors using `accupy` (accupy: https://github.com/sigma-py/accupy)
 - `tests/plot_res.py`: Plots accuracy comparison results
 
 ## Usage
