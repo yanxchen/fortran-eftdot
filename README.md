@@ -1,32 +1,82 @@
 # EFT Dot Fortran
 
-## Files:
-- eftdot.f90: EFT dot source file
-- test*.f90: example to call dot2
-- test*.py, test*.gp: borrowed from libeft, for automatic testing
+A Fortran implementation of Error-Free Transformation (EFT) based dot products for high-precision computation.
 
-## Usage:
+## Features
+
+- Support for both single precision (`real32`) and double precision (`real64`)
+- Optional FMA (Fused Multiply-Add) support via compile flag
+
+## Files
+
+- `src/eftdot.f90`: Main EFT dot product module
+- `tests/test.f90`: Test program for accuracy benchmarking
+- `tests/gen_dot_data.py`: Generates ill-conditioned test vectors using `accupy`
+- `tests/plot_res.py`: Plots accuracy comparison results
+
+## Usage
+
+### Build Library
 ```bash
-# compile lib and mod
+# Compile library and module
 $ make
-# run testing and plot for single
-$ make test_s
-# run testing and plot for double
-$ make test_d
+
+# Enable FMA optimization (uncomment in Makefile)
+# FFLAGS += -D_FMA -mfma
 ```
 
-## Non-installation usage:
-Codes in `eftdot.f90` can be directly copied and used anywhere. 
+### Run Tests
+```bash
+# Run full accuracy benchmark (generates data, runs tests, plots results)
+$ make tests
 
-An example to call `dot2_s` for calculating dot product in single precision while emulating double precision:
+# Clean build artifacts
+$ make clean
+```
+
+## Non-installation Usage
+
+Codes in `eftdot.f90` can be directly copied and used anywhere.
+
+### Example: Using `dot2`
 ```Fortran
-    integer, parameter :: n = 3
-    ! single precision
-    real(kind=sp) :: x(n), y(n), result
-    
-    x = [1.0_sp, 2.0_sp, 3.0_sp]
-    y = [4.0_sp, 5.0_sp, 6.0_sp]
-    
-    ! calculate dot product using dot2_s
-    call dot2_s(x, y, n, result)
+use eftdot
+integer, parameter :: n = 3
+real(sp) :: x(n), y(n), result
+
+x = [1.0_sp, 2.0_sp, 3.0_sp]
+y = [4.0_sp, 5.0_sp, 6.0_sp]
+
+! Compensated dot product
+call dot2(x, y, n, result)
 ```
+
+### Example: Using `dotk` for higher accuracy
+```Fortran
+use eftdot
+integer, parameter :: n = 100
+real(sp) :: x(n), y(n), result
+
+! k=3 provides approximately double precision accuracy for SP inputs
+call dotk(x, y, n, 3, result)
+```
+
+## API Reference
+
+### `dot2(x, y, n, res)`
+Compensated dot product using TwoProduct and TwoSum error-free transformations.
+- `x, y`: Input vectors (single or double precision)
+- `n`: Vector length
+- `res`: Result with improved accuracy
+
+### `dotk(x, y, n, k, res)`
+K-fold compensated dot product for higher accuracy.
+- `x, y`: Input vectors
+- `n`: Vector length
+- `k`: Number of compensation passes (k=2 is equivalent to dot2)
+- `res`: High-accuracy result
+
+## Reference
+
+Ogita, T., Rump, S. M., & Oishi, S. I. (2005). *Accurate sum and dot product.* 
+SIAM Journal on Scientific Computing, 26(6), 1955-1988.
